@@ -7,7 +7,10 @@
     <string name="username">Username</string>
     <string name="loginBtn">Login</string>
     <string name="registerBtn">New User? Register</string>
-    <string name="register">REGISTER</string>
+    <string name="registerBtnDone">REGISTER</string>
+    <string name="register">REGISTER (Step 1 of 3)</string>
+    <string name="register2">REGISTER (Step 2 of 3)</string>
+    <string name="register3">REGISTER (Step 3 of 3)</string>
     <string name="next">Next</string>
     <string name="credits">Jayson Lee and Ralph Vicente</string>
     <string name="firstname">First Name</string>
