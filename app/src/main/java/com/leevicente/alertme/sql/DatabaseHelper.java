@@ -3,6 +3,7 @@ package com.leevicente.alertme.sql;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteConstraintException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
@@ -13,7 +14,7 @@ import java.util.List;
 
 public class DatabaseHelper extends SQLiteOpenHelper{
 
-    private static final int DATABASE_VERSION = 1;
+    private static final int DATABASE_VERSION = 2;
 
     private static final String DATABASE_NAME = "AlertMe.db";
 
@@ -28,12 +29,17 @@ public class DatabaseHelper extends SQLiteOpenHelper{
     private static final String COLUMN_EMER_NAME = "emerName";
     private static final String COLUMN_EMER_CONTACT = "emerContact";
 
-    private String CREATE_USER_TABLE = "CREATE TABLE" + TABLE_USER + "("
-    + COLUMN_USER_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " + COLUMN_FIRSTNAME +
-    COLUMN_LASTNAME  + COLUMN_USERNAME + COLUMN_PASSWORD + COLUMN_CONTACT + COLUMN_EMER_NAME + COLUMN_EMER_CONTACT
-    +" TEXT" + ")";
+    private String CREATE_USER_TABLE = "CREATE TABLE " + TABLE_USER + " (" +
+            COLUMN_USER_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+            COLUMN_USERNAME + " TEXT NOT NULL, " +
+            COLUMN_PASSWORD + " TEXT NOT NULL, " +
+            COLUMN_FIRSTNAME + " TEXT NOT NULL, " +
+            COLUMN_LASTNAME + " TEXT NOT NULL, " +
+            COLUMN_CONTACT + " TEXT NOT NULL, " +
+            COLUMN_EMER_NAME + " TEXT NOT NULL, " +
+            COLUMN_EMER_CONTACT + " TEXT NOT NULL);";
 
-    private  String DROP_USER_TABLE = "DROP TABLE IF EXISTS" + TABLE_USER;
+    private  String DROP_USER_TABLE = "DROP TABLE IF EXISTS " + TABLE_USER;
 
     public DatabaseHelper(Context context){
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -71,7 +77,7 @@ public class DatabaseHelper extends SQLiteOpenHelper{
                 COLUMN_USERNAME, COLUMN_PASSWORD};
 
         String sortOrder = COLUMN_USERNAME + " ASC";
-        List<User> userList = new ArrayList<User>();
+        List<User> userList = new ArrayList<>();
 
         SQLiteDatabase db = this.getReadableDatabase();
 
@@ -92,7 +98,7 @@ public class DatabaseHelper extends SQLiteOpenHelper{
                 userList.add(user);
             } while (cursor.moveToNext());
         }
-
+        cursor.close();
         return userList;
     }
 
@@ -125,11 +131,7 @@ public class DatabaseHelper extends SQLiteOpenHelper{
         cursor.close();
         db.close();
 
-        if(cursorCount > 0){
-            return true;
-        }
-
-        return false;
+        return (cursorCount > 0);
     }
 
     public boolean checkUser(String username, String password){
@@ -145,10 +147,6 @@ public class DatabaseHelper extends SQLiteOpenHelper{
         cursor.close();
         db.close();
 
-        if(cursorCount > 0){
-            return true;
-        }
-
-        return false;
+        return (cursorCount > 0);
     }
 }

@@ -1,54 +1,78 @@
 package com.leevicente.alertme;
 
 import android.content.Intent;
-import android.net.Uri;
-import android.support.design.widget.TextInputEditText;
-import android.support.design.widget.TextInputLayout;
-import android.support.v4.widget.NestedScrollView;
-import android.widget.Button;
+import com.leevicente.alertme.helpers.InputValidation;
+import com.leevicente.alertme.sql.DatabaseHelper;
+
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
 public class Login extends AppCompatActivity {
-    private static EditText username;
-    private static EditText password;
-    private static Button login_button;
+    private final AppCompatActivity activity = Login.this;
+    private EditText username;
+    private EditText password;
+
+    private InputValidation inputValidation;
+    private DatabaseHelper databaseHelper;
+
+    private Button loginBtn;
+    private Button registerBtn;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+        initLogin();
+        initObjects();
+    }
+
+    private void initLogin(){
+        username = findViewById(R.id.username);
+        password = findViewById(R.id.password);
+
+        loginBtn = findViewById(R.id.loginBtn);
+        registerBtn = findViewById(R.id.registerBtn);
+    }
+
+    private void initObjects() {
+        databaseHelper = new DatabaseHelper(activity);
+        inputValidation = new InputValidation(activity);
     }
 
     public void buttonClickLogin(View v){
-        username = (EditText)findViewById(R.id.username);
-        password = (EditText)findViewById(R.id.password);
-        login_button = (Button)findViewById(R.id.loginBtn);
         Intent i;
-        if(!username.getText().toString().trim().equals("") || !password.getText().toString().trim().equals("")){
-            if (v.getId() == R.id.loginBtn) {
-                if(username.getText().toString().trim().equals("admin") && password.getText().toString().trim().equals("admin")){
-                    Toast.makeText(Login.this,"Username and password is correct", Toast.LENGTH_SHORT).show();
-                    i = new Intent(this, Main.class);
-                    startActivity(i);
-                }
-                else{
-                    Toast.makeText(Login.this,"Username and password is NOT correct", Toast.LENGTH_SHORT).show();
-                }
+        if (v.getId() == R.id.registerBtn) {
+            i = new Intent(activity, Register.class);
+            startActivity(i);
+        } else if (v.getId() == R.id.loginBtn) {
+            verifyFromSQLite();
+        }
+}
 
-            }
+    private void verifyFromSQLite(){
+        if(!inputValidation.isInputEditTextField(username, "username")){
+            return;
+        }
+        if(!inputValidation.isInputEditTextField(password, "password")){
+            return;
+        }
+        if(databaseHelper.checkUser(username.getText().toString().trim(), password.getText().toString().trim())){
+            Intent toMain = new Intent(activity, Main.class);
+            toMain.putExtra("Username", username.getText().toString().trim());
+            emptyInputEditText();
+            startActivity(toMain);
         }
         else{
-            Toast.makeText(Login.this,"No input in Username and/or Password", Toast.LENGTH_SHORT).show();
+            Toast.makeText(Login.this,"No username is found", Toast.LENGTH_SHORT).show();
         }
     }
 
-
-//    private void emptyInputEditText(){
-//        username.setText(null);
-//        password.setText(null);
-//    }
+    private void emptyInputEditText() {
+        username.setText(null);
+        password.setText(null);
+    }
 }
